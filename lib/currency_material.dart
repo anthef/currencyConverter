@@ -17,36 +17,20 @@ class CurrencyMaterial extends StatelessWidget {
       body: Center(
         child: ColoredBox(
           color: Color.fromRGBO(20, 2, 5, 0.5),
-          child: Padding(
-            padding: EdgeInsets.all(16.0), // Add some padding to the ColoredBox
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  '0',
-                  style: TextStyle(
-                    fontSize: 45,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 255, 255, 20),
-                  ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '0',
+                style: TextStyle(
+                  fontSize: 45,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 255, 255, 20),
                 ),
-                const Text(
-                  '1',
-                  style: TextStyle(
-                    fontSize: 45,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(199, 20, 62, 200),
-                  ),
-                ),
-                const Text(
-                  '2',
-                  style: TextStyle(
-                    fontSize: 45,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 20, 255, 32),
-                  ),
-                ),
-                TextField(
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
                   textCapitalization: TextCapitalization.characters,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
@@ -61,9 +45,16 @@ class CurrencyMaterial extends StatelessWidget {
                     focusedBorder: border,
                     enabledBorder: border,
                   ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                 ),
-              ],
-            ),
+              ),
+              TextButton(
+                  onPressed: () {
+                    print('button clicked');
+                  },
+                  child: const Text("Click me!")),
+            ],
           ),
         ),
       ),
