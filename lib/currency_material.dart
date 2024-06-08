@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_instalasi_flutter/currency_service.dart'; 
 
 class CurrencyMaterial extends StatefulWidget {
   const CurrencyMaterial({super.key});
@@ -10,6 +11,11 @@ class CurrencyMaterial extends StatefulWidget {
 class _CurrencyMaterialState extends State<CurrencyMaterial> {
   double result = 0;
   final TextEditingController textEditingController = TextEditingController();
+  final CurrencyService currencyService = CurrencyService();
+  final List<String> currencies = ['USD', 'EUR', 'JPY', 'IDR', 'SGD']; // Add more as needed
+  String fromCurrency = 'USD';
+  String toCurrency = 'IDR';
+  Map<String, dynamic> rates = {};
 
   final border = OutlineInputBorder(
     borderSide: const BorderSide(
@@ -19,11 +25,31 @@ class _CurrencyMaterialState extends State<CurrencyMaterial> {
     borderRadius: BorderRadius.circular(5),
   );
 
+  @override
+  void initState() {
+    super.initState();
+    fetchRates();
+  }
+
+  Future<void> fetchRates() async {
+    try {
+      final data = await currencyService.fetchRates(fromCurrency);
+      setState(() {
+        rates = data['conversion_rates'];
+      });
+    } catch (e) {
+      print('Failed to fetch exchange rates: $e');
+    }
+  }
+
   void convert() {
     setState(() {
-      result = double.tryParse(textEditingController.text) != null
-          ? double.parse(textEditingController.text) * 16280.80
-          : 0;
+      final amount = double.tryParse(textEditingController.text);
+      if (amount != null && rates.isNotEmpty) {
+        result = amount * (rates[toCurrency] ?? 0);
+      } else {
+        result = 0;
+      }
     });
   }
 
@@ -46,7 +72,7 @@ class _CurrencyMaterialState extends State<CurrencyMaterial> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                result.toString(),
+                result.toStringAsFixed(2),
                 style: const TextStyle(
                   fontSize: 45,
                   fontWeight: FontWeight.bold,
@@ -60,7 +86,7 @@ class _CurrencyMaterialState extends State<CurrencyMaterial> {
                   textCapitalization: TextCapitalization.characters,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: "Please text something",
+                    hintText: "Enter amount",
                     hintStyle: const TextStyle(
                         color: Colors.white, fontFamily: 'Times New Roman'),
                     prefixIcon: const Icon(
@@ -77,16 +103,60 @@ class _CurrencyMaterialState extends State<CurrencyMaterial> {
                 ),
               ),
               Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DropdownButton<String>(
+                      value: fromCurrency,
+                      dropdownColor: Colors.blueGrey,
+                      style: const TextStyle(color: Colors.white),
+                      items: currencies.map<DropdownMenuItem<String>>(
+                        (String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          fromCurrency = newValue!;
+                          fetchRates();
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 20),
+                    DropdownButton<String>(
+                      value: toCurrency,
+                      dropdownColor: Colors.blueGrey,
+                      style: const TextStyle(color: Colors.white),
+                      items: currencies.map<DropdownMenuItem<String>>(
+                        (String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          toCurrency = newValue!;
+                          convert();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child: TextButton(
-                  onPressed: () {
-                    convert();
-                  },
+                  onPressed: convert,
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
-                    shape: const CircleBorder(),
                   ),
                   child: const Icon(Icons.money_rounded),
                 ),
@@ -98,5 +168,3 @@ class _CurrencyMaterialState extends State<CurrencyMaterial> {
     );
   }
 }
-
-
